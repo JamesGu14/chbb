@@ -1,16 +1,20 @@
-﻿using System;
+﻿using Aliyun.Acs.Core;
+using Aliyun.Acs.Core.Exceptions;
+using Aliyun.Acs.Core.Profile;
+using Aliyun.Acs.vod.Model.V20170321;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace CHBB.Utility
 {
     public static class Utilities
     {
+        private const string REGION_ID = "cn-shanghai";
         private const string ACCESS_KEY_ID = "LTAIjHhnzqDnCW3y";
         private const string ACCESS_KEY_SECRET = "PmfzM84GzCU6fPZjtDGABJKZGLEkDO";
         private const string API_VERSION = "2017-03-21";
@@ -61,25 +65,37 @@ namespace CHBB.Utility
 
         private static string HmacSHA1Signature(string accessKeySecret, string stringToSign)
         {
-            //string key = accessKeySecret + "&";
+            // string key = accessKeySecret + "&";
 
-            //Encoding encode = Encoding.GetEncoding("utf-8");
-            //byte[] byteData = encode.GetBytes(stringToSign);
-            //byte[] byteKey = encode.GetBytes(key);
-            //HMACSHA1 hmac = new HMACSHA1(byteKey);
-            //CryptoStream cs = new CryptoStream(Stream.Null, hmac, CryptoStreamMode.Write);
-            //cs.Write(byteData, 0, byteData.Length);
-            //cs.Close();
-            //return Convert.ToBase64String(hmac.Hash);
+            Encoding encode = Encoding.GetEncoding("utf-8");
+            byte[] byteData = encode.GetBytes(stringToSign);
+            byte[] byteKey = encode.GetBytes(accessKeySecret);
+            HMACSHA1 hmac = new HMACSHA1(byteKey);
+            CryptoStream cs = new CryptoStream(Stream.Null, hmac, CryptoStreamMode.Write);
+            cs.Write(byteData, 0, byteData.Length);
+            cs.Close();
+            return Convert.ToBase64String(hmac.Hash);
 
-            var encoding = new ASCIIEncoding();
-            byte[] keyByte = encoding.GetBytes(accessKeySecret);
-            byte[] messageBytes = encoding.GetBytes(stringToSign);
-            using (var hmacsha1 = new HMACSHA1(keyByte))
-            {
-                byte[] hashmessage = hmacsha1.ComputeHash(messageBytes);
-                return Convert.ToBase64String(hashmessage);
-            }
+            //var encoding = new ASCIIEncoding();
+            //byte[] keyByte = encoding.GetBytes(accessKeySecret);
+            //byte[] messageBytes = encoding.GetBytes(stringToSign);
+            //using (var hmacsha1 = new HMACSHA1(keyByte))
+            //{
+            //    byte[] hashmessage = hmacsha1.ComputeHash(messageBytes);
+            //    return Convert.ToBase64String(hashmessage);
+            //}
+        }
+
+
+        public static DefaultAcsClient ConstructClient()
+        {
+            IClientProfile profile = DefaultProfile.GetProfile(
+                REGION_ID,
+                ACCESS_KEY_ID,
+                ACCESS_KEY_SECRET
+            );
+
+            return new DefaultAcsClient(profile);
         }
     }
 }
