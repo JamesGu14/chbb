@@ -10,7 +10,7 @@ namespace chbb.Controllers
     {
         public ActionResult Index()
         {
-            ViewBag.Title = "Home Page";
+            ViewBag.Title = "0-6岁宝贝在家就可以上的亲子早教课程";
 
             return View();
         }
